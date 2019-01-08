@@ -1,0 +1,127 @@
+{
+	"Skybox": {
+		"Color": [0.0, 0.0, 0.0]
+	},
+	"Entities": [{
+			"Position" : [0, 600, 0],
+			"Rotation" : [90, 0, 0],
+			"Shape": {
+				"Type": "Plane",
+				"Dimensions": [400, 400, 0]
+			},
+			"Material": {
+				"Type": "DiffuseEmissive",
+				"Texture": {
+					"Type": "Color",
+					"Color": [10, 10, 10]
+				}
+			}
+		},
+				{
+			"Position" : [0, 300, 0],
+			"Rotation" : [0, 0, 0],
+			"IsSolid" : false,
+			"Density" : 0.0001,
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 5000.0
+			},
+			"Material": {
+				"Type" : "Isotropic",
+				"Texture" : {
+					"Type" : "Color",
+					"Color" : [1.0, 1.0, 1.0]
+				}
+			}
+		},
+		{
+			"Position" : [100, 175, -250],
+			"Rotation" : [0, 0, 0],
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 70.0
+			},
+			"Material": {
+				"Type" : "Dielectric",
+				"RefractiveIndex" : 1.5
+			}
+		},
+		{
+			"Position" : [100, 175, -250],
+			"Rotation" : [0, 0, 0],
+			"IsSolid" : false,
+			"Density" : 0.2,
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 70.0
+			},
+			"Material": {
+				"Type" : "Isotropic",
+				"Texture" : {
+					"Type" : "Color",
+					"Color" : [0.2, 0.4, 0.9]
+				}
+			}
+		},
+		{
+			"Position" : [200, 200, 0],
+			"Rotation" : [0, 0, 0],
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 100.0
+			},
+			"Material": {
+				"Type" : "Diffuse",
+				"Texture" : {
+					"Type": "Image",
+					"Path": "Resources/Earth.jpg"
+				}
+			}
+		},
+		{
+			"Position" : [-100, 150, -300],
+			"Rotation" : [0, 0, 0],
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 70.0
+			},
+			"Material": {
+				"Type" : "Dielectric",
+				"RefractiveIndex" : 1.5
+			}
+		},
+		{
+			"Position" : [200, 500, 200],
+			"Rotation" : [0, 0, 0],
+			"Speed" : [-100, 0, 0],
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 70.0
+			},
+			"Material": {
+				"Type" : "Diffuse",
+				"Texture" : {
+					"Type" : "Color",
+					"Color" : [0.7, 0.3, 0.1]
+				}
+			}
+		},
+		{
+			"Position" : [-50, 300, 0],
+			"Rotation" : [0, 0, 0],
+			"Shape": {
+				"Type" : "Sphere",
+				"Radius" : 100.0
+			},
+			"Material": {
+				"Type" : "Diffuse",
+				"Texture" : {
+					"Type" : "Perlin",
+					"Dimensions" : [0.1, 0.1, 0.1],
+					"Depth" : 7,
+					"Perlin Type" : "Sin"
+				}
+			}
+		}
+	]
+}

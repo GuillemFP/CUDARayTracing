@@ -1,0 +1,32 @@
+{
+	"Config": {
+		"ModuleInput": {},
+		"ModuleWindow": {
+			"WindowWidth": 300,
+			"WindowHeight": 300
+		},
+		"ModuleRender": {},
+		"ModuleCamera": {
+			"Position": [300, 250, -800.0],
+			"LookAt" : [-50.0, 250, 0.0],
+			"FocusPoint" : [-50.0, 250, 0.0],
+			"Aperture" : 0.0,
+			"Vertical FOV" : 45,
+			"Aspect Ratio" : 1.0,
+			"Min Time": 0.0,
+			"Max Time": 1.0
+		},
+		"ModuleEntities": {
+			"Add Random Spheres" : false,
+			"Add Random Floor" : false
+		},
+		"ModuleRayTracing": {
+			"ThreadsX" : 8,
+			"ThreadsY" : 8,
+			"MinDistance": 0.001,
+			"MaxDistance": 100000,
+			"MaxScatters": 50,
+			"SamplesPerPixel": 50
+		}
+	}
+}
