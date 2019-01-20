@@ -38,8 +38,6 @@ bool ModuleRayTracing::Init(Config* config)
 	_pixelsWidth = App->_window->GetWindowsWidth();
 	_pixelsHeight = App->_window->GetWindowsHeight();
 
-	_currentY = GetInitialPixelY();
-
 	size_t size = _pixelsWidth * _pixelsHeight * sizeof(Vector3);
 	checkCudaErrors(cudaMallocManaged((void**)&_colors, size));
 

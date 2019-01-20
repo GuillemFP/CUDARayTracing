@@ -41,10 +41,6 @@ private:
 	int _pixelsHeight = 0;
 	int _samplesPerPixel = 1;
 
-	int _currentY = 0;
-
-	int _currentAccumulated = 0;
-
 	int _maxScatters = 10;
 	float _minDistance = 0.0f;
 	float _maxDistance = 1.0f;
@@ -53,7 +49,6 @@ private:
 
 	Camera* _camera = nullptr;
 	Vector3* _colors = nullptr;
-
 
 	Timer* _rayTracingTime = nullptr;
 };
