@@ -2,8 +2,8 @@
 	"Config": {
 		"ModuleInput": {},
 		"ModuleWindow": {
-			"WindowWidth": 300,
-			"WindowHeight": 300
+			"WindowWidth": 1200,
+			"WindowHeight": 600
 		},
 		"ModuleRender": {},
 		"ModuleCamera": {
@@ -21,6 +21,12 @@
 			"Add Random Floor" : false
 		},
 		"ModuleRayTracing": {
+			"Camera" : {
+				"Position": [0.0, 0.0, 0.0],
+				"LookAt" : [0.0, 0.0, -1.0],
+				"WorldUp" : [0.0, 1.0, 0.0],
+				"Fov" : 53.14
+			},
 			"ThreadsX" : 8,
 			"ThreadsY" : 8,
 			"MinDistance": 0.001,

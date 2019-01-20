@@ -80,21 +80,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="CudaUtils.cu" />
+    <CudaCompile Include="RaytracingUtils.cu" />
     <CudaCompile Include="Vector3.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Cuda.h" />
     <ClInclude Include="CudaUtils.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="Managed.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleInput.h" />
     <ClInclude Include="ModuleRayTracing.h" />
     <ClInclude Include="ModuleRender.h" />
     <ClInclude Include="ModuleWindow.h" />
+    <ClInclude Include="ParseUtils.h" />
     <ClInclude Include="parson\parson.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="RaytracingUtils.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>
@@ -108,6 +114,7 @@
     <ClCompile Include="ModuleRayTracing.cpp" />
     <ClCompile Include="ModuleRender.cpp" />
     <ClCompile Include="ModuleWindow.cpp" />
+    <ClCompile Include="ParseUtils.cpp" />
     <ClCompile Include="parson\parson.c" />
   </ItemGroup>
   <ItemGroup>

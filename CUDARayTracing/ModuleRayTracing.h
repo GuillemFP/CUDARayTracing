@@ -9,6 +9,9 @@
 #include <iostream>
 #include <fstream>
 
+class Camera;
+class Timer;
+
 class ModuleRayTracing : public Module
 {
 public:
@@ -48,8 +51,11 @@ private:
 
 	std::ofstream _ppmImage;
 
-	Color* _colorRow = nullptr;
+	Camera* _camera = nullptr;
 	Vector3* _colors = nullptr;
+
+
+	Timer* _rayTracingTime = nullptr;
 };
 
 #endif // !MODULERAYTRACING_H

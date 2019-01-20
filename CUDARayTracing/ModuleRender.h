@@ -2,10 +2,14 @@
 #define MODULERENDER_H
 
 #include "Module.h"
+#include "SDL/include/SDL_stdinc.h"
 
 #define MODULERENDER_NAME "ModuleRender"
 
 class SDL_Renderer;
+class SDL_Texture;
+class Vector3;
+class Timer;
 struct Color;
 
 class ModuleRender : public Module
@@ -20,11 +24,14 @@ public:
 
 	update_status PostUpdate();
 
-	void DrawPixel(const Color& color, int x, int y);
+	void DrawScreen(const Vector3* colors);
 
 private:
 	SDL_Renderer* _renderer = nullptr;
+	SDL_Texture* _texture = nullptr;
+	Timer* _timer = nullptr;
 
+	Uint32* _pixels = nullptr;
 	int _pixelsWidth = 0;
 	int _pixelsHeight = 0;
 };

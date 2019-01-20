@@ -1,6 +1,7 @@
 #include "ModuleRayTracing.h"
 
 #include "Application.h"
+#include "Camera.h"
 #include "Color.h"
 #include "Config.h"
 #include "CudaUtils.h"
@@ -8,6 +9,9 @@
 #include "Math.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
+#include "RaytracingUtils.h"
+#include "Timer.h"
+#include "ParseUtils.h"
 #include <algorithm>
 
 ModuleRayTracing::ModuleRayTracing() : Module(MODULERAYTRACING_NAME)
@@ -20,6 +24,8 @@ ModuleRayTracing::~ModuleRayTracing()
 
 bool ModuleRayTracing::Init(Config* config)
 {
+	_rayTracingTime = new Timer();
+
 	_maxScatters = config->GetInt("MaxScatters");
 	_minDistance = config->GetFloat("MinDistance");
 	_maxDistance = config->GetFloat("MaxDistance");
@@ -31,12 +37,19 @@ bool ModuleRayTracing::Init(Config* config)
 
 	_pixelsWidth = App->_window->GetWindowsWidth();
 	_pixelsHeight = App->_window->GetWindowsHeight();
-	_colorRow = new Color[_pixelsWidth];
 
 	_currentY = GetInitialPixelY();
 
 	size_t size = _pixelsWidth * _pixelsHeight * sizeof(Vector3);
-	checkCudaErrors(cudaMallocManaged(&_colors, size));
+	checkCudaErrors(cudaMallocManaged((void**)&_colors, size));
+
+	Config cameraConfig = config->GetSection("Camera");
+	const Vector3 origin = ParseUtils::ParseVector(cameraConfig.GetArray("Position"));
+	const Vector3 lookAt = ParseUtils::ParseVector(cameraConfig.GetArray("LookAt"));
+	const Vector3 worldUp = ParseUtils::ParseVector(cameraConfig.GetArray("WorldUp"));
+	const float fov = cameraConfig.GetFloat("Fov");
+
+	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
 
 	InitFile();
 
@@ -52,9 +65,11 @@ bool ModuleRayTracing::CleanUp()
 {
 	checkCudaErrors(cudaFree(_colors));
 
+	RELEASE(_camera);
+
 	_ppmImage.close();
 
-	RELEASE_ARRAY(_colorRow);
+	RELEASE(_rayTracingTime);
 
 	return true;
 }
@@ -66,18 +81,18 @@ update_status ModuleRayTracing::Update()
 		return UPDATE_CONTINUE;
 	}
 
-	CudaUtils::getColors(_colors, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	_rayTracingTime->Start();
+
+	RaytracingUtils::getColors(_colors, _camera, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+
+	float seconds = _rayTracingTime->GetTimeInS();
+	APPLOG("RayTracing sample finished after %f seconds", seconds);
+	_rayTracingTime->Stop();
 
 	checkCudaErrors(cudaGetLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
 
-	for (int j = _pixelsHeight - 1; j >= 0; j--) {
-		for (int i = 0; i < _pixelsWidth; i++) {
-			size_t pixel_index = j * _pixelsWidth + i;
-			App->_renderer->DrawPixel(_colors[pixel_index], i, j);
-			WriteColor(_colors[pixel_index]);
-		}
-	}
+	App->_renderer->DrawScreen(_colors);
 
 	_screenFinished = true;
 
