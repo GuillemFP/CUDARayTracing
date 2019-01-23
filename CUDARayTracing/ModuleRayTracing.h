@@ -11,6 +11,7 @@
 
 class Camera;
 class Timer;
+class Entity;
 
 class ModuleRayTracing : public Module
 {
@@ -46,6 +47,9 @@ private:
 	float _maxDistance = 1.0f;
 
 	std::ofstream _ppmImage;
+
+	Entity** _list;
+	Entity** _entities;
 
 	Camera* _camera = nullptr;
 	Vector3* _colors = nullptr;

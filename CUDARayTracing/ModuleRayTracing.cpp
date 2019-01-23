@@ -14,6 +14,9 @@
 #include "ParseUtils.h"
 #include <algorithm>
 
+#include "EntityList.h"
+#include "Sphere.h"
+
 ModuleRayTracing::ModuleRayTracing() : Module(MODULERAYTRACING_NAME)
 {
 }
@@ -49,6 +52,10 @@ bool ModuleRayTracing::Init(Config* config)
 
 	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
 
+	checkCudaErrors(cudaMalloc((void **)&_list, 2 * sizeof(Entity*)));
+	checkCudaErrors(cudaMalloc((void **)&_entities, sizeof(Entity*)));
+	RaytracingUtils::initWorld(_list, _entities);
+
 	InitFile();
 
 	return true;
@@ -64,6 +71,10 @@ bool ModuleRayTracing::CleanUp()
 	checkCudaErrors(cudaFree(_colors));
 
 	RELEASE(_camera);
+	
+	RaytracingUtils::cleanUpWorld(_list, _entities);
+	checkCudaErrors(cudaFree(_list));
+	checkCudaErrors(cudaFree(_entities));
 
 	_ppmImage.close();
 
@@ -81,7 +92,7 @@ update_status ModuleRayTracing::Update()
 
 	_rayTracingTime->Start();
 
-	RaytracingUtils::getColors(_colors, _camera, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	RaytracingUtils::getColors(_colors, _entities, 2, _camera, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
 	float seconds = _rayTracingTime->GetTimeInS();
 	APPLOG("RayTracing sample finished after %f seconds", seconds);

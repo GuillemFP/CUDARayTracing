@@ -90,7 +90,10 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Cuda.h" />
     <ClInclude Include="CudaUtils.h" />
+    <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityList.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="HitInfo.h" />
     <ClInclude Include="Managed.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleInput.h" />
@@ -101,6 +104,7 @@
     <ClInclude Include="parson\parson.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytracingUtils.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>

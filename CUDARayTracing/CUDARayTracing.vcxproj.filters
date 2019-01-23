@@ -39,6 +39,9 @@
     <Filter Include="Cuda">
       <UniqueIdentifier>{7ba9515a-5345-4818-aef1-0420acdef625}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{a6ff2f08-c9af-41d1-9ad8-c6ce6b0b7403}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Globals.h">
@@ -97,6 +100,18 @@
     </ClInclude>
     <ClInclude Include="ParseUtils.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="HitInfo.h">
+      <Filter>Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityList.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
