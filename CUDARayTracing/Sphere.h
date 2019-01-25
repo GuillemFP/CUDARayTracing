@@ -3,7 +3,7 @@
 
 #include "Entity.h"
 
-class Sphere : public Entity
+class Sphere : public Shape
 {
 public:
 	__device__ Sphere() = default;

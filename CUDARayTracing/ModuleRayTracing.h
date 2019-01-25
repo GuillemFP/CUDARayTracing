@@ -11,7 +11,7 @@
 
 class Camera;
 class Timer;
-class Entity;
+class EntityList;
 
 class ModuleRayTracing : public Module
 {
@@ -48,8 +48,7 @@ private:
 
 	std::ofstream _ppmImage;
 
-	Entity** _list;
-	Entity** _entities;
+	EntityList** _entities;
 
 	Camera* _camera = nullptr;
 	Vector3* _colors = nullptr;

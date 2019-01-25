@@ -113,6 +113,9 @@
     <ClInclude Include="Sphere.h">
       <Filter>Entities</Filter>
     </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">

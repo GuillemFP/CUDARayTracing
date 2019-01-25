@@ -104,6 +104,7 @@
     <ClInclude Include="parson\parson.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytracingUtils.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />
