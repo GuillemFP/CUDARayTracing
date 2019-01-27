@@ -106,6 +106,7 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytracingUtils.h" />
     <ClInclude Include="ScatterInfo.h" />
+    <ClInclude Include="Screen.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />

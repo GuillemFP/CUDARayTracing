@@ -5,6 +5,7 @@
 #include "ModuleWindow.h"
 #include "Vector3.h"
 #include "Timer.h"
+#include "Screen.h"
 #include "SDL/include/SDL.h"
 
 ModuleRender::ModuleRender() : Module(MODULERENDER_NAME)
@@ -83,26 +84,11 @@ update_status ModuleRender::PostUpdate()
 	return UPDATE_CONTINUE;
 }
 
-void ModuleRender::DrawScreen(const Vector3* colors, int samples)
+void ModuleRender::DrawScreen(const Screen* screen)
 {
 	_timer->Start();
 
-	for (int j = 0; j < _pixelsHeight; j++) 
-	{
-		for (int i = 0; i < _pixelsWidth; i++)
-		{
-			const size_t index = j * _pixelsWidth + i;
-			const int ir = int(255.99*colors[index].e[0] / samples);
-			const int ig = int(255.99*colors[index].e[1] / samples);
-			const int ib = int(255.99*colors[index].e[2] / samples);
-
-			const size_t pixelIndex = (_pixelsHeight - 1 - j) * _pixelsWidth + i;
-			const Uint32 color = (SDL_ALPHA_OPAQUE << 24) | ((ir & 0xFF) << 16) | ((ig & 0xFF) << 8) | (ib & 0xFF);
-			_pixels[pixelIndex] = color;
-		}
-	}
-
-	SDL_UpdateTexture(_texture, NULL, _pixels, _pixelsWidth * sizeof(Uint32));
+	SDL_UpdateTexture(_texture, NULL, screen->GetPixels(), _pixelsWidth * sizeof(Uint32));
 
 	float seconds = _timer->GetTimeInS();
 	APPLOG("Loading pixels finished after %f seconds", seconds);

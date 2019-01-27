@@ -10,6 +10,7 @@ class SDL_Renderer;
 class SDL_Texture;
 class Vector3;
 class Timer;
+class Screen;
 struct Color;
 
 class ModuleRender : public Module
@@ -24,7 +25,7 @@ public:
 
 	update_status PostUpdate();
 
-	void DrawScreen(const Vector3* colors, int samples);
+	void DrawScreen(const Screen* screen);
 
 private:
 	SDL_Renderer* _renderer = nullptr;

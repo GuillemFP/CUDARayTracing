@@ -3,6 +3,7 @@
 #include "EntityList.h"
 #include "Shape.h"
 #include "Camera.h"
+#include "Screen.h"
 
 #define SEED 1984
 #define RANDBLOCKSIZE 10000
@@ -47,7 +48,7 @@ namespace
 		return Vector3(0.0f, 0.0f, 0.0f);
 	}
 
-	__global__ void render_colors(Vector3* colors, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight)
+	__global__ void render_colors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight)
 	{
 		const int i = threadIdx.x + blockIdx.x * blockDim.x;
 		const int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -55,12 +56,12 @@ namespace
             return;
 
 		const int pixelIndex = j * pixelsWidth + i;
-        curandState randState = randStates[pixelIndex];
+        curandState& randState = randStates[pixelIndex];
 
 		const float u = (float(i + curand_uniform(&randState))) / float(pixelsWidth);
 		const float v = (float(j + curand_uniform(&randState))) / float(pixelsHeight);
-		colors[pixelIndex] += color(camera->GenerateRay(u, v), entities, &randState);
-		randStates[pixelIndex] = randState;
+
+		screen->AddColor(color(camera->GenerateRay(u, v), entities, &randState), i, j);
 	}
 
 	__global__ void init_render(curandState* randStates, int pixelsWidth, int pixelsHeight)
@@ -92,11 +93,16 @@ namespace
 
 namespace RaytracingUtils
 {
-	__host__ void getColors(Vector3* colors, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY)
+	__host__ void getColors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY)
 	{
 		dim3 blocks(pixelsWidth / threadsX + 1, pixelsHeight / threadsY + 1);
 		dim3 threads(threadsX, threadsY);
-		render_colors<<<blocks, threads>>>(colors, entities, camera, randStates, pixelsWidth, pixelsHeight);
+		render_colors<<<blocks, threads>>>(screen, entities, camera, randStates, pixelsWidth, pixelsHeight);
+
+		checkCudaErrors(cudaGetLastError());
+		checkCudaErrors(cudaDeviceSynchronize());
+
+		screen->AddSample();
 	}
 
     __host__ void initRender(curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY)

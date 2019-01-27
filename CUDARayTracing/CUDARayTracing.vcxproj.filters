@@ -116,6 +116,9 @@
     <ClInclude Include="ScatterInfo.h">
       <Filter>Containers</Filter>
     </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>Cuda</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">

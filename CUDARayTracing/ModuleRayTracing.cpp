@@ -13,6 +13,7 @@
 #include "RaytracingUtils.h"
 #include "Timer.h"
 #include "ParseUtils.h"
+#include "Screen.h"
 #include <algorithm>
 
 ModuleRayTracing::ModuleRayTracing() : Module(MODULERAYTRACING_NAME)
@@ -42,16 +43,11 @@ bool ModuleRayTracing::Init(Config* config)
 
     const unsigned numberOfPixels = _pixelsWidth * _pixelsHeight;
 
-	checkCudaErrors(cudaMallocManaged((void**)&_colors, numberOfPixels * sizeof(Vector3)));
-    //memset(_colors, 0.0f, 3.0f * numberOfPixels * sizeof(float));
-
 	Config cameraConfig = config->GetSection("Camera");
 	const Vector3 origin = ParseUtils::ParseVector(cameraConfig.GetArray("Position"));
 	const Vector3 lookAt = ParseUtils::ParseVector(cameraConfig.GetArray("LookAt"));
 	const Vector3 worldUp = ParseUtils::ParseVector(cameraConfig.GetArray("WorldUp"));
 	const float fov = cameraConfig.GetFloat("Fov");
-
-	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
 
 	checkCudaErrors(cudaMalloc((void **)&_entities, sizeof(EntityList)));
     RaytracingUtils::initEntities(_entities);
@@ -60,6 +56,10 @@ bool ModuleRayTracing::Init(Config* config)
 
     checkCudaErrors(cudaMalloc((void **)&_dRandStates, numberOfPixels * sizeof(curandState)));
     RaytracingUtils::initRender(_dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+
+	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
+
+	_screen = new Screen(_pixelsWidth, _pixelsHeight, _samplesPerPixel);
 
 	InitFile();
 
@@ -77,7 +77,7 @@ bool ModuleRayTracing::Start()
 
 bool ModuleRayTracing::CleanUp()
 {
-	checkCudaErrors(cudaFree(_colors));
+	checkCudaErrors(cudaFree(_screen));
 
 	RELEASE(_camera);
 	
@@ -95,26 +95,27 @@ bool ModuleRayTracing::CleanUp()
 
 update_status ModuleRayTracing::Update()
 {
-	if (_sampleCount >= _samplesPerPixel)
+	if (_screen->IsCompleted())
 	{
 		return UPDATE_CONTINUE;
 	}
 
 	_rayTracingTime->Start();
 
-	RaytracingUtils::getColors(_colors, _entities, _camera, _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	RaytracingUtils::getColors(_screen, _entities, _camera, _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
 	const float seconds = _rayTracingTime->GetTimeInS();
 	APPLOG("RayTracing sample finished after %f seconds", seconds);
 	_rayTracingTime->Stop();
 
-	checkCudaErrors(cudaGetLastError());
-	checkCudaErrors(cudaDeviceSynchronize());
-
-    ++_sampleCount;
-	App->_renderer->DrawScreen(_colors, _sampleCount);
+	App->_renderer->DrawScreen(_screen);
 
 	return UPDATE_CONTINUE;
+}
+
+int ModuleRayTracing::GetSamplesNumber() const
+{
+	return _screen->GetSampleNumber();
 }
 
 void ModuleRayTracing::InitFile()
@@ -129,14 +130,4 @@ void ModuleRayTracing::WriteColor(const Color& color)
 	int ig = int(255.99*color.g);
 	int ib = int(255.99*color.b);
 	_ppmImage << ir << " " << ig << " " << ib << "\n";
-}
-
-int ModuleRayTracing::GetInitialPixelY() const
-{
-	return _pixelsHeight - 1;
-}
-
-int ModuleRayTracing::GetInitialPixelX() const
-{
-	return 0;
 }

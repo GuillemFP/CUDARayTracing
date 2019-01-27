@@ -13,6 +13,7 @@
 class Camera;
 class Timer;
 class EntityList;
+class Screen;
 
 class ModuleRayTracing : public Module
 {
@@ -26,14 +27,11 @@ public:
 
 	update_status Update();
 
-	int GetSamplesNumber() const { return _sampleCount; }
+	int GetSamplesNumber() const;
 
 private:
 	void InitFile();
 	void WriteColor(const Color& color);
-
-	int GetInitialPixelY() const;
-	int GetInitialPixelX() const;
 
 private:
 	bool _screenFinished = false;
@@ -45,7 +43,6 @@ private:
 	int _pixelsHeight = 0;
 
 	int _samplesPerPixel = 1;
-    int _sampleCount = 0;
 
 	int _maxScatters = 10;
 	float _minDistance = 0.0f;
@@ -56,7 +53,7 @@ private:
 	EntityList** _entities;
 
 	Camera* _camera = nullptr;
-	Vector3* _colors = nullptr;
+	Screen* _screen = nullptr;
 
 	Timer* _rayTracingTime = nullptr;
 
