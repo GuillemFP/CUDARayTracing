@@ -14,6 +14,8 @@ class ModuleMaterials;
 class ModuleEntities;
 class ModuleRayTracing;
 
+class Timer;
+
 class Application
 {
 public:
@@ -36,6 +38,14 @@ public:
 
 private:
 	std::vector<Module*> _modules;
+
+	Timer* _updateTimer = nullptr;
+
+	int _frameCount = 0;
+	int _framesLastS = 0;
+
+	int _accumTimeMs = 0;
+	int _prevTime = 0;
 };
 
 extern Application* App;

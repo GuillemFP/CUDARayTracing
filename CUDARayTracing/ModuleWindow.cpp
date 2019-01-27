@@ -2,6 +2,12 @@
 
 #include "Config.h"
 #include "SDL/include/SDL.h"
+#include <stdio.h>
+
+namespace
+{
+    const int kTitleLength = 200;
+}
 
 ModuleWindow::ModuleWindow() : Module(MODULEWINDOW_NAME)
 {
@@ -36,11 +42,15 @@ bool ModuleWindow::Init(Config* config)
 
 	_screenSurface = SDL_GetWindowSurface(_window);
 
+    _windowsTitle = new char[kTitleLength];
+
 	return true;
 }
 
 bool ModuleWindow::CleanUp()
 {
+    RELEASE_ARRAY(_windowsTitle);
+
 	//Destroy window
 	if (_window)
 	{
@@ -50,4 +60,11 @@ bool ModuleWindow::CleanUp()
 	//Quit SDL subsystems
 	SDL_Quit();
 	return true;
+}
+
+void ModuleWindow::SetTitle(float fps, int numberOfSamples)
+{
+    int app_name_lenght = sprintf_s(_windowsTitle, kTitleLength, "");
+    sprintf_s(_windowsTitle, kTitleLength, "FPS: %f, Number of samples: %d", fps, numberOfSamples);
+    SDL_SetWindowTitle(_window, _windowsTitle);
 }

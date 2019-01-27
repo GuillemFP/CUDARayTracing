@@ -83,7 +83,7 @@ update_status ModuleRender::PostUpdate()
 	return UPDATE_CONTINUE;
 }
 
-void ModuleRender::DrawScreen(const Vector3* colors)
+void ModuleRender::DrawScreen(const Vector3* colors, int samples)
 {
 	_timer->Start();
 
@@ -92,9 +92,9 @@ void ModuleRender::DrawScreen(const Vector3* colors)
 		for (int i = 0; i < _pixelsWidth; i++)
 		{
 			const size_t index = j * _pixelsWidth + i;
-			const int ir = int(255.99*colors[index].e[0]);
-			const int ig = int(255.99*colors[index].e[1]);
-			const int ib = int(255.99*colors[index].e[2]);
+			const int ir = int(255.99*colors[index].e[0] / samples);
+			const int ig = int(255.99*colors[index].e[1] / samples);
+			const int ib = int(255.99*colors[index].e[2] / samples);
 
 			const size_t pixelIndex = (_pixelsHeight - 1 - j) * _pixelsWidth + i;
 			const Uint32 color = (SDL_ALPHA_OPAQUE << 24) | ((ir & 0xFF) << 16) | ((ig & 0xFF) << 8) | (ib & 0xFF);

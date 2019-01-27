@@ -32,12 +32,16 @@ public:
 		return _window;
 	}
 
+    void SetTitle(float fps, int numberOfSamples);
+
 private:
 	SDL_Window* _window = nullptr;
 	SDL_Surface* _screenSurface = nullptr;
 
 	int _windowsWidth = 0;
 	int _windowsHeight = 0;
+
+    char* _windowsTitle = nullptr;
 };
 
 #endif // !MODULEWINDOW_H

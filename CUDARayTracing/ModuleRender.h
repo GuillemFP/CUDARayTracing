@@ -24,7 +24,7 @@ public:
 
 	update_status PostUpdate();
 
-	void DrawScreen(const Vector3* colors);
+	void DrawScreen(const Vector3* colors, int samples);
 
 private:
 	SDL_Renderer* _renderer = nullptr;

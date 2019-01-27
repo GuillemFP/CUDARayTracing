@@ -6,6 +6,7 @@
 #include "ModuleWindow.h"
 
 #include "Config.h"
+#include "Timer.h"
 
 Application::Application()
 {
@@ -17,6 +18,8 @@ Application::Application()
 	//_modules.push_back(_materials = new ModuleMaterials());
 	//_modules.push_back(_entities = new ModuleEntities());
 	_modules.push_back(_rayTracing = new ModuleRayTracing());
+
+	_updateTimer = new Timer();
 }
 
 Application::~Application()
@@ -25,6 +28,8 @@ Application::~Application()
 	{
 		RELEASE(module);
 	}
+
+	RELEASE(_updateTimer);
 }
 
 bool Application::Init()
@@ -52,6 +57,8 @@ bool Application::Init()
 
 update_status Application::Update()
 {
+	_updateTimer->Start();
+
 	update_status ret = UPDATE_CONTINUE;
 
 	for (std::vector<Module*>::iterator it = _modules.begin(); it != _modules.end() && ret == UPDATE_CONTINUE; ++it)
@@ -65,6 +72,20 @@ update_status Application::Update()
 	for (std::vector<Module*>::iterator it = _modules.begin(); it != _modules.end() && ret == UPDATE_CONTINUE; ++it)
 		if ((*it)->IsEnabled())
 			ret = (*it)->PostUpdate();
+
+	++_frameCount;
+
+	const Uint32 updateMs = _updateTimer->GetTimeInMs();
+	_accumTimeMs += updateMs;
+
+	if (_accumTimeMs > 1000)
+	{
+		_framesLastS = _frameCount;
+		_frameCount = 0;
+		_accumTimeMs -= 1000;
+	}
+
+	_window->SetTitle(_framesLastS, _rayTracing->GetSamplesNumber());
 
 	return ret;
 }

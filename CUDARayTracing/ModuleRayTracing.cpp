@@ -26,6 +26,7 @@ ModuleRayTracing::~ModuleRayTracing()
 bool ModuleRayTracing::Init(Config* config)
 {
 	_rayTracingTime = new Timer();
+	_rayTracingTime->Start();
 
 	_maxScatters = config->GetInt("MaxScatters");
 	_minDistance = config->GetFloat("MinDistance");
@@ -39,8 +40,10 @@ bool ModuleRayTracing::Init(Config* config)
 	_pixelsWidth = App->_window->GetWindowsWidth();
 	_pixelsHeight = App->_window->GetWindowsHeight();
 
-	size_t size = _pixelsWidth * _pixelsHeight * sizeof(Vector3);
-	checkCudaErrors(cudaMallocManaged((void**)&_colors, size));
+    const unsigned numberOfPixels = _pixelsWidth * _pixelsHeight;
+
+	checkCudaErrors(cudaMallocManaged((void**)&_colors, numberOfPixels * sizeof(Vector3)));
+    //memset(_colors, 0.0f, 3.0f * numberOfPixels * sizeof(float));
 
 	Config cameraConfig = config->GetSection("Camera");
 	const Vector3 origin = ParseUtils::ParseVector(cameraConfig.GetArray("Position"));
@@ -51,9 +54,18 @@ bool ModuleRayTracing::Init(Config* config)
 	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
 
 	checkCudaErrors(cudaMalloc((void **)&_entities, sizeof(EntityList)));
-	RaytracingUtils::initEntities(_entities);
+    RaytracingUtils::initEntities(_entities);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
+
+    checkCudaErrors(cudaMalloc((void **)&_dRandStates, numberOfPixels * sizeof(curandState)));
+    RaytracingUtils::initRender(_dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
 	InitFile();
+
+	const float seconds = _rayTracingTime->GetTimeInS();
+	APPLOG("RayTracing initialiation end after %f seconds", seconds);
+	_rayTracingTime->Stop();
 
 	return true;
 }
@@ -72,6 +84,8 @@ bool ModuleRayTracing::CleanUp()
 	RaytracingUtils::cleanUpEntities(_entities);
 	checkCudaErrors(cudaFree(_entities));
 
+    checkCudaErrors(cudaFree(_dRandStates));
+
 	_ppmImage.close();
 
 	RELEASE(_rayTracingTime);
@@ -81,25 +95,24 @@ bool ModuleRayTracing::CleanUp()
 
 update_status ModuleRayTracing::Update()
 {
-	if (_screenFinished)
+	if (_sampleCount >= _samplesPerPixel)
 	{
 		return UPDATE_CONTINUE;
 	}
 
 	_rayTracingTime->Start();
 
-	RaytracingUtils::getColors(_colors, _entities, _camera, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	RaytracingUtils::getColors(_colors, _entities, _camera, _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
-	float seconds = _rayTracingTime->GetTimeInS();
+	const float seconds = _rayTracingTime->GetTimeInS();
 	APPLOG("RayTracing sample finished after %f seconds", seconds);
 	_rayTracingTime->Stop();
 
 	checkCudaErrors(cudaGetLastError());
 	checkCudaErrors(cudaDeviceSynchronize());
 
-	App->_renderer->DrawScreen(_colors);
-
-	_screenFinished = true;
+    ++_sampleCount;
+	App->_renderer->DrawScreen(_colors, _sampleCount);
 
 	return UPDATE_CONTINUE;
 }

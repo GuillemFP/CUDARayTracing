@@ -8,6 +8,7 @@
 #include "Vector3.h"
 #include <iostream>
 #include <fstream>
+#include <curand_kernel.h>
 
 class Camera;
 class Timer;
@@ -25,6 +26,8 @@ public:
 
 	update_status Update();
 
+	int GetSamplesNumber() const { return _sampleCount; }
+
 private:
 	void InitFile();
 	void WriteColor(const Color& color);
@@ -40,7 +43,9 @@ private:
 
 	int _pixelsWidth = 0;
 	int _pixelsHeight = 0;
+
 	int _samplesPerPixel = 1;
+    int _sampleCount = 0;
 
 	int _maxScatters = 10;
 	float _minDistance = 0.0f;
@@ -54,6 +59,8 @@ private:
 	Vector3* _colors = nullptr;
 
 	Timer* _rayTracingTime = nullptr;
+
+    curandState* _dRandStates = nullptr;
 };
 
 #endif // !MODULERAYTRACING_H
