@@ -18,4 +18,9 @@ namespace RaytracingUtils
 	__host__ void cleanUpEntities(EntityList** entities);
 }
 
+namespace MathUtils
+{
+	__device__ Vector3 RandomPointInSphere(curandState* rand);
+}
+
 #endif // !RAYTRACINGUTILS_H

@@ -8,7 +8,7 @@ class ConfigArray;
 
 namespace ParseUtils
 {
-	Vector3 ParseVector(const ConfigArray& config, const Vector3& defaultValue = Vector3::one);
+	Vector3 ParseVector(const ConfigArray& config, const Vector3& defaultValue = Vector3(1.0f, 1.0f, 1.0f));
 }
 
 #endif // !PARSEUTILS_H

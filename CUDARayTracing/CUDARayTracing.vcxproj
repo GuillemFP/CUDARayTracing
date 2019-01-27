@@ -82,7 +82,6 @@
   <ItemGroup>
     <CudaCompile Include="CudaUtils.cu" />
     <CudaCompile Include="RaytracingUtils.cu" />
-    <CudaCompile Include="Vector3.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -96,6 +95,7 @@
     <ClInclude Include="Globals.h" />
     <ClInclude Include="HitInfo.h" />
     <ClInclude Include="Managed.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleInput.h" />
     <ClInclude Include="ModuleRayTracing.h" />
@@ -105,8 +105,8 @@
     <ClInclude Include="parson\parson.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytracingUtils.h" />
+    <ClInclude Include="ScatterInfo.h" />
     <ClInclude Include="Shape.h" />
-    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Vector3.h" />
   </ItemGroup>

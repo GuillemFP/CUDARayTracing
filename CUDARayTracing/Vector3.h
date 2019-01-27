@@ -35,13 +35,8 @@ public:
 	__host__ __device__ inline void normalize();
 	__host__ __device__ inline Vector3 normalized() const;
 
-	static const Vector3 zero;
-	static const Vector3 one;
-
 	float e[3];
 };
-
-
 
 inline std::istream& operator >> (std::istream &is, Vector3 &t) 
 {

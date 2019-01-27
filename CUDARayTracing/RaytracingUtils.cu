@@ -1,11 +1,8 @@
 #include "RaytracingUtils.h"
 
-#include "Entity.h"
 #include "EntityList.h"
-#include "Sphere.h"
+#include "Shape.h"
 #include "Camera.h"
-#include "Ray.h"
-#include "Vector3.h"
 
 #define SEED 1984
 #define RANDBLOCKSIZE 10000
@@ -19,17 +16,35 @@ namespace
 		return (1.0f - t)*Vector3(1.0, 1.0, 1.0) + t * Vector3(0.5, 0.7, 1.0);
 	}
 
-	__device__ Vector3 color(const Ray& ray, const EntityList** entities)
+	__device__ Vector3 color(const Ray& ray, const EntityList** entities, curandState* rand)
 	{
-		HitInfo hitInfo;
-		if((*entities)->Hit(ray, 0.0f, FLT_MAX, hitInfo))
+		Ray propagatedRay = ray;
+		Vector3 totalAttenuation = Vector3(1.0f, 1.0f, 1.0f);
+		float cudaAtt = 1.0f;
+
+		for (int i = 0; i < 50; ++i)
 		{
-			return 0.5f * Vector3(hitInfo.normal.x() + 1.0f, hitInfo.normal.y() + 1.0f, hitInfo.normal.z() + 1.0f);
+			HitInfo hitInfo;
+			if ((*entities)->Hit(propagatedRay, 0.001f, FLT_MAX, hitInfo))
+			{
+				ScatterInfo scatterInfo;
+				if (hitInfo.entity->Scatter(propagatedRay, hitInfo, scatterInfo, rand))
+				{
+					totalAttenuation *= scatterInfo.attenuation;
+					propagatedRay = scatterInfo.scatteredRay;
+				}
+				else
+				{
+					return Vector3(0.0f, 0.0f, 0.0f);
+				}
+			}
+			else
+			{
+				return totalAttenuation * background_color(propagatedRay);
+			}
 		}
-		else
-		{
-			return background_color(ray);
-		}
+
+		return Vector3(0.0f, 0.0f, 0.0f);
 	}
 
 	__global__ void render_colors(Vector3* colors, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight)
@@ -42,30 +57,30 @@ namespace
 		const int pixelIndex = j * pixelsWidth + i;
         curandState randState = randStates[pixelIndex];
 
-		const float rand1 = curand_uniform(&randState);
-		const float rand2 = curand_uniform(&randState);
-
-		const float u = (float(i + rand1)) / float(pixelsWidth);
-		const float v = (float(j + rand2)) / float(pixelsHeight);
-		colors[pixelIndex] += color(camera->GenerateRay(u, v), entities);
+		const float u = (float(i + curand_uniform(&randState))) / float(pixelsWidth);
+		const float v = (float(j + curand_uniform(&randState))) / float(pixelsHeight);
+		colors[pixelIndex] += color(camera->GenerateRay(u, v), entities, &randState);
+		randStates[pixelIndex] = randState;
 	}
 
-    __global__ void init_render(curandState* randStates, int totalNumber, int i)
-    {
-		const int index = i * RANDBLOCKSIZE + threadIdx.x + blockIdx.x * blockDim.x;
-		if (index >= totalNumber)
+	__global__ void init_render(curandState* randStates, int pixelsWidth, int pixelsHeight)
+	{
+		int i = threadIdx.x + blockIdx.x * blockDim.x;
+		int j = threadIdx.y + blockIdx.y * blockDim.y;
+		if ((i >= pixelsWidth) || (j >= pixelsHeight)) 
 			return;
+		int index = j * pixelsWidth + i;
 
 		curand_init((SEED << 20) + index, 0, 0, &randStates[index]);
-    }
+	}
 
 	__global__ void create_entities(EntityList** entities)
 	{
 		if (threadIdx.x == 0 && blockIdx.x == 0) 
 		{
 			*(entities) = new EntityList(2);
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f)));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f)));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f), new Lambertian(Vector3(0.5f, 0.5f, 0.5f))));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f), new Lambertian(Vector3(0.5f, 0.5f, 0.5f))));
 		}
 	}
 
@@ -86,17 +101,9 @@ namespace RaytracingUtils
 
     __host__ void initRender(curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY)
     {
-		const int totalNumber = pixelsWidth * pixelsHeight;
-		const int numIterations = totalNumber / (threadsX * RANDBLOCKSIZE) + 1;
-
-		dim3 blocks(RANDBLOCKSIZE);
-		dim3 threads(threadsX);
-		for (int i = 0; i < numIterations; i++)
-		{
-			init_render<<<blocks, threads>>>(randStates, totalNumber, i);
-			checkCudaErrors(cudaGetLastError());
-			checkCudaErrors(cudaDeviceSynchronize());
-		}
+		dim3 blocks(pixelsWidth / threadsX + 1, pixelsHeight / threadsY + 1);
+		dim3 threads(threadsX, threadsY);
+		init_render<<<blocks, threads>>>(randStates, pixelsWidth, pixelsHeight);
     }
 
 	__host__ void initEntities(EntityList** entities)
@@ -107,5 +114,18 @@ namespace RaytracingUtils
 	__host__ void cleanUpEntities(EntityList** entities)
 	{
 		free_entities<<<1, 1 >>>(entities);
+	}
+}
+
+namespace MathUtils
+{
+	__device__ Vector3 RandomPointInSphere(curandState* rand)
+	{
+		Vector3 ret;
+		do
+		{
+			ret = 2.0f * Vector3(curand_uniform(rand), curand_uniform(rand), curand_uniform(rand)) - Vector3(1.0f, 1.0f, 1.0f);
+		} while (ret.lengthSq() >= 1.0f);
+		return ret;
 	}
 }
