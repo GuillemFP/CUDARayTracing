@@ -22,6 +22,7 @@ namespace RaytracingUtils
 namespace MathUtils
 {
 	__device__ Vector3 RandomPointInSphere(curandState* rand);
+	__device__ Vector3 ReflectedVector(const Vector3& inVector, const Vector3& normal);
 }
 
 #endif // !RAYTRACINGUTILS_H

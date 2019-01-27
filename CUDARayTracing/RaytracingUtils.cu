@@ -79,9 +79,11 @@ namespace
 	{
 		if (threadIdx.x == 0 && blockIdx.x == 0) 
 		{
-			*(entities) = new EntityList(2);
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f), new Lambertian(Vector3(0.5f, 0.5f, 0.5f))));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f), new Lambertian(Vector3(0.5f, 0.5f, 0.5f))));
+			*(entities) = new EntityList(4);
+			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f), new Lambertian(Vector3(0.8f, 0.3f, 0.3f))));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f), new Lambertian(Vector3(0.8f, 0.8f, 0.0f))));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(1.0f, 0.0f, -1.0f), 0.5f), new Metal(Vector3(0.8f, 0.6f, 0.2f), 1.0f)));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), 0.5f), new Metal(Vector3(0.8f, 0.8f, 0.8f), 0.3f)));
 		}
 	}
 
@@ -133,5 +135,10 @@ namespace MathUtils
 			ret = 2.0f * Vector3(curand_uniform(rand), curand_uniform(rand), curand_uniform(rand)) - Vector3(1.0f, 1.0f, 1.0f);
 		} while (ret.lengthSq() >= 1.0f);
 		return ret;
+	}
+
+	__device__ Vector3 ReflectedVector(const Vector3 & inVector, const Vector3 & normal)
+	{
+		return inVector - 2.0f * dot(inVector, normal) * normal;
 	}
 }

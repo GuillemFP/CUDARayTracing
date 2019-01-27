@@ -32,4 +32,26 @@ private:
 	Vector3 _albedo;
 };
 
+class Metal : public Material
+{
+public:
+	__device__ Metal(const Vector3& albedo, float fuzziness) : _albedo(albedo), _fuzziness(fuzziness) {}
+	__device__ bool Scatter(const Ray& ray, const HitInfo& hitInfo, ScatterInfo& scatterInfo, curandState* rand) const
+	{
+		scatterInfo.scatteredRay.pos = hitInfo.point;
+		scatterInfo.scatteredRay.time = ray.time;
+
+		Vector3 scatteredRay = MathUtils::ReflectedVector(ray.dir, hitInfo.normal) + _fuzziness * MathUtils::RandomPointInSphere(rand);
+		scatterInfo.scatteredRay.dir = normalize(scatteredRay);
+		scatterInfo.attenuation = _albedo;
+
+		scatterInfo.scatters = dot(scatterInfo.scatteredRay.dir, hitInfo.normal) > 0;
+		return scatterInfo.scatters;
+	}
+
+private:
+	Vector3 _albedo;
+	float _fuzziness = 0.0f;
+};
+
 #endif // !MATERIAL_H
