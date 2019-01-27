@@ -79,11 +79,12 @@ namespace
 	{
 		if (threadIdx.x == 0 && blockIdx.x == 0) 
 		{
-			*(entities) = new EntityList(4);
+			*(entities) = new EntityList(5);
 			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f), new Lambertian(Vector3(0.8f, 0.3f, 0.3f))));
 			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f), new Lambertian(Vector3(0.8f, 0.8f, 0.0f))));
 			(*entities)->push_back(new Entity(new Sphere(Vector3(1.0f, 0.0f, -1.0f), 0.5f), new Metal(Vector3(0.8f, 0.6f, 0.2f), 1.0f)));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), 0.5f), new Metal(Vector3(0.8f, 0.8f, 0.8f), 0.3f)));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), 0.5f), new Dielectric(1.5f)));
+			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), -0.45f), new Dielectric(1.5f)));
 		}
 	}
 
@@ -140,5 +141,35 @@ namespace MathUtils
 	__device__ Vector3 ReflectedVector(const Vector3 & inVector, const Vector3 & normal)
 	{
 		return inVector - 2.0f * dot(inVector, normal) * normal;
+	}
+
+	__device__ float CosineIncidentAngle(const Vector3& normal, const Vector3& inVector)
+	{
+		return -dot(normal, inVector);
+	}
+
+	//Snell's law vectorial form
+	// v_refract = r v + (r c - sqrt(1 - r^2 (1 - c^2))) n
+	// r = n1/n2, c = - n * v
+	__device__ bool Refracts(const Vector3& inVector, const Vector3& normal, float refractionFactorRatio, Vector3& refracted)
+	{
+		float c = CosineIncidentAngle(normal, inVector);
+		float discriminant = 1 - refractionFactorRatio * refractionFactorRatio * (1 - c * c);
+		if (discriminant < 0)
+		{
+			//Total internal reflection
+			return false;
+		}
+
+		refracted = refractionFactorRatio * inVector + (refractionFactorRatio * c - sqrt(discriminant)) * normal;
+		return true;
+	}
+
+	//Approximates reflection coefficient as function of incident angle
+	__device__ float SchlickApproximation(float refractionFactorRatio, float cosine)
+	{
+		float r0 = (refractionFactorRatio - 1.0f) / (refractionFactorRatio + 1.0f);
+		r0 = r0 * r0;
+		return r0 + (1.0f - r0) * powf(1.0f - cosine, 5);
 	}
 }

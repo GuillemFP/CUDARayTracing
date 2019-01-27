@@ -23,6 +23,9 @@ namespace MathUtils
 {
 	__device__ Vector3 RandomPointInSphere(curandState* rand);
 	__device__ Vector3 ReflectedVector(const Vector3& inVector, const Vector3& normal);
+	__device__ float CosineIncidentAngle(const Vector3& normal, const Vector3& inVector);
+	__device__ bool Refracts(const Vector3& inVector, const Vector3& normal, float refractionFactorRatio, Vector3& refracted);
+	__device__ float SchlickApproximation(float refractionFactorRatio, float cosine);
 }
 
 #endif // !RAYTRACINGUTILS_H
