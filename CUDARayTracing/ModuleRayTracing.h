@@ -25,9 +25,11 @@ public:
 	bool Start();
 	bool CleanUp();
 
-	update_status Update();
+	update_status Update(float dt);
 
 	int GetSamplesNumber() const;
+
+	void ResetImage();
 
 private:
 	void InitFile();
@@ -52,7 +54,6 @@ private:
 
 	EntityList** _entities;
 
-	Camera* _camera = nullptr;
 	Screen* _screen = nullptr;
 
 	Timer* _rayTracingTime = nullptr;

@@ -35,14 +35,95 @@ bool ModuleInput::Init(Config* config)
 	return true;
 }
 
-update_status ModuleInput::PreUpdate()
+update_status ModuleInput::PreUpdate(float dt)
 {
 	static SDL_Event event;
 
-	if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
+	_mouseMotion = { 0, 0 };
+	_mouseWheel = { 0, 0 };
+	memset(_bWindowEvents, false, WE_COUNT * sizeof(bool));
+
+	const Uint8* keys = SDL_GetKeyboardState(NULL);
+
+	for (int i = 0; i < KEYBOARD_MAX_KEYS; ++i)
 	{
-		return UPDATE_STOP;
+		if (keys[i] == 1)
+		{
+			if (_keyboard[i] == KEY_IDLE)
+				_keyboard[i] = KEY_DOWN;
+			else
+				_keyboard[i] = KEY_REPEAT;
+		}
+		else
+		{
+			if (_keyboard[i] == KEY_REPEAT || _keyboard[i] == KEY_DOWN)
+				_keyboard[i] = KEY_UP;
+			else
+				_keyboard[i] = KEY_IDLE;
+		}
 	}
+
+	for (int i = 0; i < MOUSE_NUM_BUTTONS; ++i)
+	{
+		if (_mouseButtons[i] == KEY_DOWN)
+			_mouseButtons[i] = KEY_REPEAT;
+
+		if (_mouseButtons[i] == KEY_UP)
+			_mouseButtons[i] = KEY_IDLE;
+	}
+
+	while (SDL_PollEvent(&event) != 0)
+	{
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			_bWindowEvents[WE_QUIT] = true;
+			break;
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			//PrintKeyInfo(&event.key);
+			break;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event)
+			{
+			case SDL_WINDOWEVENT_HIDDEN:
+			case SDL_WINDOWEVENT_MINIMIZED:
+			case SDL_WINDOWEVENT_FOCUS_LOST:
+				_bWindowEvents[WE_HIDE] = true;
+				break;
+			case SDL_WINDOWEVENT_SHOWN:
+			case SDL_WINDOWEVENT_FOCUS_GAINED:
+			case SDL_WINDOWEVENT_MAXIMIZED:
+			case SDL_WINDOWEVENT_RESTORED:
+				_bWindowEvents[WE_SHOW] = true;
+				break;
+
+			case SDL_WINDOWEVENT_SIZE_CHANGED:
+				break;
+			}
+
+		case SDL_MOUSEBUTTONDOWN:
+			_mouseButtons[event.button.button - 1] = KEY_DOWN;
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			_mouseButtons[event.button.button - 1] = KEY_UP;
+			break;
+
+		case SDL_MOUSEMOTION:
+			_mouseMotion.x = event.motion.xrel;
+			_mouseMotion.y = event.motion.yrel;
+			_mousePosition.x = event.motion.x;
+			_mousePosition.y = event.motion.y;
+			break;
+		case SDL_MOUSEWHEEL:
+			_mouseWheel.y = event.wheel.y;
+			break;
+		}
+	}
+
+	if (GetWindowEvent(EventWindow::WE_QUIT) == true || GetKey(SDL_SCANCODE_ESCAPE) == KEY_DOWN)
+		return UPDATE_STOP;
 
 	return UPDATE_CONTINUE;
 }

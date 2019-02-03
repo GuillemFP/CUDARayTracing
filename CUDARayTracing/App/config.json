@@ -7,28 +7,20 @@
 		},
 		"ModuleRender": {},
 		"ModuleCamera": {
-			"Position": [300, 250, -800.0],
-			"LookAt" : [-50.0, 250, 0.0],
-			"FocusPoint" : [-50.0, 250, 0.0],
-			"Aperture" : 0.0,
-			"Vertical FOV" : 45,
-			"Aspect Ratio" : 1.0,
-			"Min Time": 0.0,
-			"Max Time": 1.0
+			"Camera" : {
+				"Position": [0.0, 0.0, 1.0],
+				"LookAt" : [0.0, 0.0, -1.0],
+				"WorldUp" : [0.0, 1.0, 0.0],
+				"Fov" : 53.14
+			}
 		},
 		"ModuleEntities": {
 			"Add Random Spheres" : false,
 			"Add Random Floor" : false
 		},
 		"ModuleRayTracing": {
-			"Camera" : {
-				"Position": [0.0, 0.0, 1.0],
-				"LookAt" : [0.0, 0.0, -1.0],
-				"WorldUp" : [0.0, 1.0, 0.0],
-				"Fov" : 53.14
-			},
-			"ThreadsX" : 8,
-			"ThreadsY" : 8,
+			"ThreadsX" : 16,
+			"ThreadsY" : 16,
 			"MinDistance": 0.001,
 			"MaxDistance": 100000,
 			"MaxScatters": 50,

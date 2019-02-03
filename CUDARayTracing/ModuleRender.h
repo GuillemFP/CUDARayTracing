@@ -23,7 +23,7 @@ public:
 	bool Start();
 	bool CleanUp();
 
-	update_status PostUpdate();
+	update_status PostUpdate(float dt);
 
 	void DrawScreen(const Screen* screen);
 

@@ -4,6 +4,7 @@
 #include "ModuleRayTracing.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
+#include "ModuleCamera.h"
 
 #include "Config.h"
 #include "Timer.h"
@@ -14,7 +15,7 @@ Application::Application()
 	_modules.push_back(_window = new ModuleWindow());
 	_modules.push_back(_renderer = new ModuleRender());
 
-	//_modules.push_back(_camera = new ModuleCamera());
+	_modules.push_back(_camera = new ModuleCamera());
 	//_modules.push_back(_materials = new ModuleMaterials());
 	//_modules.push_back(_entities = new ModuleEntities());
 	_modules.push_back(_rayTracing = new ModuleRayTracing());
@@ -57,21 +58,22 @@ bool Application::Init()
 
 update_status Application::Update()
 {
+	float dt = _updateTimer->GetTimeInS();
 	_updateTimer->Start();
 
 	update_status ret = UPDATE_CONTINUE;
 
 	for (std::vector<Module*>::iterator it = _modules.begin(); it != _modules.end() && ret == UPDATE_CONTINUE; ++it)
 		if ((*it)->IsEnabled())
-			ret = (*it)->PreUpdate();
+			ret = (*it)->PreUpdate(dt);
 
 	for (std::vector<Module*>::iterator it = _modules.begin(); it != _modules.end() && ret == UPDATE_CONTINUE; ++it)
 		if ((*it)->IsEnabled())
-			ret = (*it)->Update();
+			ret = (*it)->Update(dt);
 
 	for (std::vector<Module*>::iterator it = _modules.begin(); it != _modules.end() && ret == UPDATE_CONTINUE; ++it)
 		if ((*it)->IsEnabled())
-			ret = (*it)->PostUpdate();
+			ret = (*it)->PostUpdate(dt);
 
 	++_frameCount;
 

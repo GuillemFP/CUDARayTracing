@@ -27,11 +27,7 @@ public:
 
 	__host__ __device__ bool Init()
 	{
-		for (int i = 0; i < _width * _height; i++)
-		{
-			_accumColors[i] = Vector3(0.0f, 0.0f, 0.0f);
-			_pixels[i] = 0;
-		}
+		ResetScreen();
 
 		return true;
 	}
@@ -64,6 +60,14 @@ public:
 		const int ib = int(255.99*_accumColors[index].e[2] / _samples);
 
 		_pixels[index] = (255 << 24) | ((ir & 0xFF) << 16) | ((ig & 0xFF) << 8) | (ib & 0xFF);
+	}
+
+	__host__ __device__ void ResetScreen()
+	{
+		memset(_pixels, 0, _width * _height * sizeof(unsigned int));
+		memset(_accumColors, 0.0f, _width * _height * sizeof(Vector3));
+
+		_samples = 1;
 	}
 
 private:

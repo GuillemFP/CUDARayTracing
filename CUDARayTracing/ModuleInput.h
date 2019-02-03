@@ -2,6 +2,7 @@
 #define MODULEINPUT_H
 
 #include "Module.h"
+#include "Point.h"
 
 #define MODULEINPUT_NAME "ModuleInput"
 
@@ -28,10 +29,22 @@ public:
 	~ModuleInput();
 
 	bool Init(Config* config = nullptr);
-	update_status PreUpdate();
+	update_status PreUpdate(float dt);
 	bool CleanUp();
 
+	KeyState GetKey(int id) const { return _keyboard[id]; }
+	KeyState GetMouseButtonDown(int id) const { return _mouseButtons[id - 1]; }
+	bool GetWindowEvent(EventWindow code) const { return _bWindowEvents[code]; }
+	const iPoint& GetMouseMotion() const { return _mouseMotion; }
+	const iPoint& GetMousePosition() const { return _mousePosition; }
+	const iPoint& GetMouseWheel() const { return _mouseWheel; }
+
 private:
+	iPoint _mouseMotion;
+	iPoint _mousePosition;
+	iPoint _mouseWheel;
+
+	bool _bWindowEvents[WE_COUNT];
 	KeyState* _keyboard;
 	KeyState* _mouseButtons;
 };

@@ -22,6 +22,7 @@ public:
 		const float halfWidth = _aspectRatio * halfHeight;
 
 		Vector3 w = normalize(_position - lookAt);
+		_cameraFront = -w;
 		_cameraRight = normalize(cross(_worldUp, w));
 		_cameraUp = cross(w, _cameraRight);
 
@@ -39,10 +40,22 @@ public:
 		return Ray(rayOrigin, unitVector, 0);
 	}
 
+	__host__ __device__ const Vector3& GetFront() const { return _cameraFront; }
+	__host__ __device__ const Vector3& GetRight() const { return _cameraRight; }
+	__host__ __device__ const Vector3& GetUp() const { return _cameraUp; }
+
+	__host__ __device__ void Translate(const Vector3& translate)
+	{
+		_position += translate;
+
+		_cornerBottomLeft = _position - 0.5f * _viewportWidthVector - 0.5f * _viewportHeightVector + _cameraFront;
+	}
+
 private:
 	Vector3 _position;
 	Vector3 _worldUp;
 
+	Vector3 _cameraFront;
 	Vector3 _cameraUp;
 	Vector3 _cameraRight;
 

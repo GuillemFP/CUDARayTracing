@@ -119,6 +119,12 @@
     <ClInclude Include="Screen.h">
       <Filter>Cuda</Filter>
     </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleCamera.h">
+      <Filter>Modules\RayTracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">
@@ -153,6 +159,9 @@
     </ClCompile>
     <ClCompile Include="ParseUtils.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleCamera.cpp">
+      <Filter>Modules\RayTracing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

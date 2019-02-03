@@ -23,7 +23,7 @@ namespace
 		Vector3 totalAttenuation = Vector3(1.0f, 1.0f, 1.0f);
 		float cudaAtt = 1.0f;
 
-		for (int i = 0; i < 50; ++i)
+		for (int i = 0; i < 2; ++i)
 		{
 			HitInfo hitInfo;
 			if ((*entities)->Hit(propagatedRay, 0.001f, FLT_MAX, hitInfo))

@@ -75,7 +75,7 @@ bool ModuleRender::CleanUp()
 	return true;
 }
 
-update_status ModuleRender::PostUpdate()
+update_status ModuleRender::PostUpdate(float dt)
 {
 	SDL_RenderClear(_renderer);
 	SDL_RenderCopy(_renderer, _texture, NULL, NULL);

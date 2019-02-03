@@ -8,6 +8,7 @@
 #include "EntityList.h"
 #include "Globals.h"
 #include "Math.h"
+#include "ModuleCamera.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
 #include "RaytracingUtils.h"
@@ -43,12 +44,6 @@ bool ModuleRayTracing::Init(Config* config)
 
     const unsigned numberOfPixels = _pixelsWidth * _pixelsHeight;
 
-	Config cameraConfig = config->GetSection("Camera");
-	const Vector3 origin = ParseUtils::ParseVector(cameraConfig.GetArray("Position"));
-	const Vector3 lookAt = ParseUtils::ParseVector(cameraConfig.GetArray("LookAt"));
-	const Vector3 worldUp = ParseUtils::ParseVector(cameraConfig.GetArray("WorldUp"));
-	const float fov = cameraConfig.GetFloat("Fov");
-
 	checkCudaErrors(cudaMalloc((void **)&_entities, sizeof(EntityList)));
     RaytracingUtils::initEntities(_entities);
     checkCudaErrors(cudaGetLastError());
@@ -57,9 +52,8 @@ bool ModuleRayTracing::Init(Config* config)
     checkCudaErrors(cudaMalloc((void **)&_dRandStates, numberOfPixels * sizeof(curandState)));
     RaytracingUtils::initRender(_dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
-	_camera = new Camera(origin, lookAt, worldUp, fov, float(_pixelsWidth) / float(_pixelsHeight));
-
 	_screen = new Screen(_pixelsWidth, _pixelsHeight, _samplesPerPixel);
+	_screen->Init();
 
 	InitFile();
 
@@ -78,8 +72,6 @@ bool ModuleRayTracing::Start()
 bool ModuleRayTracing::CleanUp()
 {
 	checkCudaErrors(cudaFree(_screen));
-
-	RELEASE(_camera);
 	
 	RaytracingUtils::cleanUpEntities(_entities);
 	checkCudaErrors(cudaFree(_entities));
@@ -93,7 +85,7 @@ bool ModuleRayTracing::CleanUp()
 	return true;
 }
 
-update_status ModuleRayTracing::Update()
+update_status ModuleRayTracing::Update(float dt)
 {
 	if (_screen->IsCompleted())
 	{
@@ -102,7 +94,7 @@ update_status ModuleRayTracing::Update()
 
 	_rayTracingTime->Start();
 
-	RaytracingUtils::getColors(_screen, _entities, _camera, _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	RaytracingUtils::getColors(_screen, _entities, App->_camera->GetCamera(), _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
 
 	const float seconds = _rayTracingTime->GetTimeInS();
 	APPLOG("RayTracing sample finished after %f seconds", seconds);
@@ -116,6 +108,11 @@ update_status ModuleRayTracing::Update()
 int ModuleRayTracing::GetSamplesNumber() const
 {
 	return _screen->GetSampleNumber();
+}
+
+void ModuleRayTracing::ResetImage()
+{
+	_screen->ResetScreen();
 }
 
 void ModuleRayTracing::InitFile()
