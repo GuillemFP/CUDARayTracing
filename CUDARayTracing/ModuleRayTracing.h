@@ -29,7 +29,7 @@ public:
 
 	int GetSamplesNumber() const;
 
-	void ResetImage();
+	void OnCameraMove();
 
 private:
 	void InitFile();
@@ -46,9 +46,12 @@ private:
 
 	int _samplesPerPixel = 1;
 
+	int _minScatters = 2;
 	int _maxScatters = 10;
+	int _currentScatters = 10;
 	float _minDistance = 0.0f;
 	float _maxDistance = 1.0f;
+	float _waitingTime = 0.0f;
 
 	std::ofstream _ppmImage;
 
@@ -57,6 +60,7 @@ private:
 	Screen* _screen = nullptr;
 
 	Timer* _rayTracingTime = nullptr;
+	Timer* _resetTimer = nullptr;
 
     curandState* _dRandStates = nullptr;
 };

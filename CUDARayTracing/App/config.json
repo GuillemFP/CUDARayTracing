@@ -23,7 +23,9 @@
 			"ThreadsY" : 16,
 			"MinDistance": 0.001,
 			"MaxDistance": 100000,
+			"MinScatters": 2,
 			"MaxScatters": 50,
+			"WaitingTime": 0.5,
 			"SamplesPerPixel": 50
 		}
 	}

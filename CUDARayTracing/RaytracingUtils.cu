@@ -17,13 +17,13 @@ namespace
 		return (1.0f - t)*Vector3(1.0, 1.0, 1.0) + t * Vector3(0.5, 0.7, 1.0);
 	}
 
-	__device__ Vector3 color(const Ray& ray, const EntityList** entities, curandState* rand)
+	__device__ Vector3 color(const Ray& ray, const EntityList** entities, curandState* rand, int scatters)
 	{
 		Ray propagatedRay = ray;
 		Vector3 totalAttenuation = Vector3(1.0f, 1.0f, 1.0f);
 		float cudaAtt = 1.0f;
 
-		for (int i = 0; i < 2; ++i)
+		for (int i = 0; i < scatters; ++i)
 		{
 			HitInfo hitInfo;
 			if ((*entities)->Hit(propagatedRay, 0.001f, FLT_MAX, hitInfo))
@@ -48,7 +48,7 @@ namespace
 		return Vector3(0.0f, 0.0f, 0.0f);
 	}
 
-	__global__ void render_colors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight)
+	__global__ void render_colors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int scatters)
 	{
 		const int i = threadIdx.x + blockIdx.x * blockDim.x;
 		const int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -61,7 +61,7 @@ namespace
 		const float u = (float(i + curand_uniform(&randState))) / float(pixelsWidth);
 		const float v = (float(j + curand_uniform(&randState))) / float(pixelsHeight);
 
-		screen->AddColor(color(camera->GenerateRay(u, v), entities, &randState), i, j);
+		screen->AddColor(color(camera->GenerateRay(u, v), entities, &randState, scatters), i, j);
 	}
 
 	__global__ void init_render(curandState* randStates, int pixelsWidth, int pixelsHeight)
@@ -96,11 +96,11 @@ namespace
 
 namespace RaytracingUtils
 {
-	__host__ void getColors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY)
+	__host__ void getColors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY, int scatters)
 	{
 		dim3 blocks(pixelsWidth / threadsX + 1, pixelsHeight / threadsY + 1);
 		dim3 threads(threadsX, threadsY);
-		render_colors<<<blocks, threads>>>(screen, entities, camera, randStates, pixelsWidth, pixelsHeight);
+		render_colors<<<blocks, threads>>>(screen, entities, camera, randStates, pixelsWidth, pixelsHeight, scatters);
 
 		checkCudaErrors(cudaGetLastError());
 		checkCudaErrors(cudaDeviceSynchronize());

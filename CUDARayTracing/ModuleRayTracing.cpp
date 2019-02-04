@@ -30,9 +30,15 @@ bool ModuleRayTracing::Init(Config* config)
 	_rayTracingTime = new Timer();
 	_rayTracingTime->Start();
 
+	_resetTimer = new Timer();
+
+	_minScatters = config->GetInt("MinScatters");
 	_maxScatters = config->GetInt("MaxScatters");
+	_currentScatters = _maxScatters;
+
 	_minDistance = config->GetFloat("MinDistance");
 	_maxDistance = config->GetFloat("MaxDistance");
+	_waitingTime = config->GetFloat("WaitingTime");
 
 	_samplesPerPixel = config->GetFloat("SamplesPerPixel");
 
@@ -80,6 +86,7 @@ bool ModuleRayTracing::CleanUp()
 
 	_ppmImage.close();
 
+	RELEASE(_resetTimer);
 	RELEASE(_rayTracingTime);
 
 	return true;
@@ -87,6 +94,14 @@ bool ModuleRayTracing::CleanUp()
 
 update_status ModuleRayTracing::Update(float dt)
 {
+	if (_resetTimer->IsRunning() && _resetTimer->GetTimeInS() >= _waitingTime)
+	{
+		_resetTimer->Stop();
+		_currentScatters = _maxScatters;
+
+		_screen->ResetScreen();
+	}
+
 	if (_screen->IsCompleted())
 	{
 		return UPDATE_CONTINUE;
@@ -94,7 +109,7 @@ update_status ModuleRayTracing::Update(float dt)
 
 	_rayTracingTime->Start();
 
-	RaytracingUtils::getColors(_screen, _entities, App->_camera->GetCamera(), _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY);
+	RaytracingUtils::getColors(_screen, _entities, App->_camera->GetCamera(), _dRandStates, _pixelsWidth, _pixelsHeight, _threadsX, _threadsY, _currentScatters);
 
 	const float seconds = _rayTracingTime->GetTimeInS();
 	APPLOG("RayTracing sample finished after %f seconds", seconds);
@@ -110,9 +125,12 @@ int ModuleRayTracing::GetSamplesNumber() const
 	return _screen->GetSampleNumber();
 }
 
-void ModuleRayTracing::ResetImage()
+void ModuleRayTracing::OnCameraMove()
 {
 	_screen->ResetScreen();
+
+	_currentScatters = _minScatters;
+	_resetTimer->Start();
 }
 
 void ModuleRayTracing::InitFile()

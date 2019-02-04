@@ -77,7 +77,7 @@ update_status ModuleCamera::Update(float dt)
 
 	if (isMoving)
 	{
-		App->_rayTracing->ResetImage();
+		App->_rayTracing->OnCameraMove();
 		
 		movement = 1.0f * dt * movement;
 		_camera->Translate(movement);
