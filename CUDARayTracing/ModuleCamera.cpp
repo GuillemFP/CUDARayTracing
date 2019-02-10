@@ -24,10 +24,11 @@ bool ModuleCamera::Init(Config* config)
 	const Vector3 lookAt = ParseUtils::ParseVector(cameraConfig.GetArray("LookAt"));
 	_worldUp = ParseUtils::ParseVector(cameraConfig.GetArray("WorldUp"));
 	const float fov = cameraConfig.GetFloat("Fov");
+	const float aperture = cameraConfig.GetFloat("Aperture");
 
 	int pixelsWidth = App->_window->GetWindowsWidth();
 	int pixelsHeight = App->_window->GetWindowsHeight();
-	_camera = new Camera(origin, lookAt, _worldUp, fov, float(pixelsWidth) / float(pixelsHeight));
+	_camera = new Camera(origin, lookAt, _worldUp, fov, float(pixelsWidth) / float(pixelsHeight), aperture);
 
 	_translationSpeed = config->GetFloat("TranslationSpeed", 1.0f);
 	_rotationSpeed = config->GetFloat("RotationSpeed", 1.0f);
@@ -40,6 +41,11 @@ bool ModuleCamera::CleanUp()
 	RELEASE(_camera);
 
 	return true;
+}
+
+float ModuleCamera::GetFocusDistance() const
+{
+	return _camera->GetFocusDistance();
 }
 
 update_status ModuleCamera::Update(float dt)
@@ -100,6 +106,15 @@ update_status ModuleCamera::Update(float dt)
 		const float yAngle = -dy * _rotationSpeed * dt;
 
 		_camera->Rotate(xAngle, yAngle);
+	}
+
+	const iPoint& mouseWheel = App->_input->GetMouseWheel();
+	if (mouseWheel.y != 0)
+	{
+		App->_rayTracing->OnCameraMove();
+
+		const float apertureChange = 1.0f * mouseWheel.y * dt;
+		_camera->ChangeFocusDistance(apertureChange);
 	}
 
 	return UPDATE_CONTINUE;

@@ -32,7 +32,7 @@ public:
 		return _window;
 	}
 
-    void SetTitle(float fps, int numberOfSamples);
+    void SetTitle(float fps, int numberOfSamples, float focusDistance);
 
 private:
 	SDL_Window* _window = nullptr;

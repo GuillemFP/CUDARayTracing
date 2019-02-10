@@ -87,7 +87,7 @@ update_status Application::Update()
 		_accumTimeMs -= 1000;
 	}
 
-	_window->SetTitle(_framesLastS, _rayTracing->GetSamplesNumber());
+	_window->SetTitle(_framesLastS, _rayTracing->GetSamplesNumber(), _camera->GetFocusDistance());
 
 	return ret;
 }

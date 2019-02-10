@@ -62,9 +62,9 @@ bool ModuleWindow::CleanUp()
 	return true;
 }
 
-void ModuleWindow::SetTitle(float fps, int numberOfSamples)
+void ModuleWindow::SetTitle(float fps, int numberOfSamples, float focusDistance)
 {
     int app_name_lenght = sprintf_s(_windowsTitle, kTitleLength, "");
-    sprintf_s(_windowsTitle, kTitleLength, "FPS: %f, Number of samples: %d", fps, numberOfSamples);
+    sprintf_s(_windowsTitle, kTitleLength, "FPS: %f, Number of samples: %d, Focus distance: %f", fps, numberOfSamples, focusDistance);
     SDL_SetWindowTitle(_window, _windowsTitle);
 }

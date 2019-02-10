@@ -19,6 +19,7 @@ public:
 	bool CleanUp();
 
 	Camera* GetCamera() { return _camera; }
+	float GetFocusDistance() const;
 
 private:
 	Camera* _camera = nullptr;

@@ -11,7 +11,8 @@
 				"Position": [0.0, 0.0, 1.0],
 				"LookAt" : [0.0, 0.0, -1.0],
 				"WorldUp" : [0.0, 1.0, 0.0],
-				"Fov" : 53.14
+				"Fov" : 53.14,
+				"Aperture" : 0.0
 			},
 			"TranslationSpeed" : 1.0,
 			"RotationSpeed" : 0.25

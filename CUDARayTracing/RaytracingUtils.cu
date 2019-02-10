@@ -61,7 +61,7 @@ namespace
 		const float u = (float(i + curand_uniform(&randState))) / float(pixelsWidth);
 		const float v = (float(j + curand_uniform(&randState))) / float(pixelsHeight);
 
-		screen->AddColor(color(camera->GenerateRay(u, v), entities, &randState, scatters), i, j);
+		screen->AddColor(color(camera->GenerateRay(u, v, &randState), entities, &randState, scatters), i, j);
 	}
 
 	__global__ void init_render(curandState* randStates, int pixelsWidth, int pixelsHeight)
@@ -135,6 +135,16 @@ namespace MathUtils
 		{
 			ret = 2.0f * Vector3(curand_uniform(rand), curand_uniform(rand), curand_uniform(rand)) - Vector3(1.0f, 1.0f, 1.0f);
 		} while (ret.lengthSq() >= 1.0f);
+		return ret;
+	}
+
+	__device__ Vector3 RandomPointInDisk(curandState * rand)
+	{
+		Vector3 ret;
+		do
+		{
+			ret = 2.0f * Vector3(curand_uniform(rand), curand_uniform(rand), 0.0f) - Vector3(1.0f, 1.0f, 0.0f);
+		} while (dot(ret, ret) >= 1.0f);
 		return ret;
 	}
 
