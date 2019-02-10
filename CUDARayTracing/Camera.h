@@ -3,6 +3,7 @@
 
 #include "Managed.h"
 #include "Vector3.h"
+#include "Matrix3x3.h"
 #include "Ray.h"
 
 #define PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679f
@@ -26,9 +27,9 @@ public:
 		_cameraRight = normalize(cross(_worldUp, w));
 		_cameraUp = cross(w, _cameraRight);
 
-		_cornerBottomLeft = _position - halfWidth * _cameraRight - halfHeight * _cameraUp - w;
 		_viewportWidthVector = 2 * halfWidth * _cameraRight;
 		_viewportHeightVector = 2 * halfHeight * _cameraUp;
+		RecalculateViewport();
 	}
 
 	__host__ __device__ Ray GenerateRay(float widthFactor, float heightFactor) const
@@ -48,6 +49,26 @@ public:
 	{
 		_position += translate;
 
+		RecalculateViewport();
+	}
+
+	__host__ __device__ void Rotate(const float xAngle, const float yAngle)
+	{
+		Matrix3x3 yRotation = Matrix3x3(_worldUp, xAngle);
+		Matrix3x3 xRotation = Matrix3x3(_cameraRight, yAngle);
+
+		_cameraFront = yRotation * (xRotation * _cameraFront);
+		_cameraUp = yRotation * (xRotation * _cameraUp);
+		_cameraRight = yRotation * (xRotation * _cameraRight);
+
+		_viewportWidthVector = yRotation * (xRotation * _viewportWidthVector);
+		_viewportHeightVector = yRotation * (xRotation * _viewportHeightVector);
+
+		RecalculateViewport();
+	}
+
+	__host__ __device__ void RecalculateViewport()
+	{
 		_cornerBottomLeft = _position - 0.5f * _viewportWidthVector - 0.5f * _viewportHeightVector + _cameraFront;
 	}
 

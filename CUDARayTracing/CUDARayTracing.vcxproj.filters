@@ -125,6 +125,9 @@
     <ClInclude Include="ModuleCamera.h">
       <Filter>Modules\RayTracing</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix3x3.h">
+      <Filter>Cuda</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">

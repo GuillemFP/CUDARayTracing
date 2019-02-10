@@ -24,6 +24,9 @@ private:
 	Camera* _camera = nullptr;
 
 	Vector3 _worldUp;
+
+	float _translationSpeed = 1.0f;
+	float _rotationSpeed = 1.0f;
 };
 
 #endif // !MODULECAMERA_H

@@ -12,7 +12,9 @@
 				"LookAt" : [0.0, 0.0, -1.0],
 				"WorldUp" : [0.0, 1.0, 0.0],
 				"Fov" : 53.14
-			}
+			},
+			"TranslationSpeed" : 1.0,
+			"RotationSpeed" : 0.25
 		},
 		"ModuleEntities": {
 			"Add Random Spheres" : false,

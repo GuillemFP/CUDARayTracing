@@ -96,6 +96,7 @@
     <ClInclude Include="HitInfo.h" />
     <ClInclude Include="Managed.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="Matrix3x3.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="ModuleCamera.h" />
     <ClInclude Include="ModuleInput.h" />

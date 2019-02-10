@@ -35,6 +35,10 @@ public:
 	__host__ __device__ inline void normalize();
 	__host__ __device__ inline Vector3 normalized() const;
 
+	__host__ __device__ inline Vector3& rotateX(float angle);
+	__host__ __device__ inline Vector3& rotateY(float angle);
+	__host__ __device__ inline Vector3& rotateZ(float angle);
+
 	float e[3];
 };
 
@@ -163,6 +167,36 @@ __host__ __device__ inline Vector3& Vector3::operator/=(const float t)
 __host__ __device__ inline Vector3 normalize(const Vector3& v)
 {
 	return v / v.length();
+}
+
+__host__ __device__ inline Vector3& Vector3::rotateX(float angle)
+{
+	const float y = e[1];
+	const float z = e[2];
+
+	e[1] = y * cosf(angle) - z * sinf(angle);
+	e[2] = y * sinf(angle) + z * cosf(angle);
+	return *this;
+}
+
+__host__ __device__ inline Vector3& Vector3::rotateY(float angle)
+{
+	const float x = e[0];
+	const float z = e[2];
+
+	e[0] = x * cosf(angle) + z * sinf(angle);
+	e[2] = - x * sinf(angle) + z * cosf(angle);
+	return *this;
+}
+
+__host__ __device__ inline Vector3& Vector3::rotateZ(float angle)
+{
+	const float x = e[0];
+	const float y = e[1];
+
+	e[0] = x * cosf(angle) - y * sinf(angle);
+	e[1] = x * sinf(angle) + y * cosf(angle);
+	return *this;
 }
 
 #endif // !VECTOR3_H

@@ -29,6 +29,9 @@ bool ModuleCamera::Init(Config* config)
 	int pixelsHeight = App->_window->GetWindowsHeight();
 	_camera = new Camera(origin, lookAt, _worldUp, fov, float(pixelsWidth) / float(pixelsHeight));
 
+	_translationSpeed = config->GetFloat("TranslationSpeed", 1.0f);
+	_rotationSpeed = config->GetFloat("RotationSpeed", 1.0f);
+
 	return true;
 }
 
@@ -79,8 +82,24 @@ update_status ModuleCamera::Update(float dt)
 	{
 		App->_rayTracing->OnCameraMove();
 		
-		movement = 1.0f * dt * movement;
+		movement = _translationSpeed * dt * movement;
 		_camera->Translate(movement);
+	}
+
+	if (App->_input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT)
+	{
+		App->_rayTracing->OnCameraMove();
+
+		const iPoint& mouseMotion = App->_input->GetMouseMotion();
+		int dx = mouseMotion.x;
+		int dy = mouseMotion.y;
+
+		const Vector3& right = _camera->GetRight();
+
+		const float xAngle = -dx * _rotationSpeed * dt;
+		const float yAngle = -dy * _rotationSpeed * dt;
+
+		_camera->Rotate(xAngle, yAngle);
 	}
 
 	return UPDATE_CONTINUE;
