@@ -56,13 +56,14 @@ public:
 	{
 		Matrix3x3 yRotation = Matrix3x3(_worldUp, xAngle);
 		Matrix3x3 xRotation = Matrix3x3(_cameraRight, yAngle);
+		Matrix3x3 rotation = yRotation * xRotation;
 
-		_cameraFront = yRotation * (xRotation * _cameraFront);
-		_cameraUp = yRotation * (xRotation * _cameraUp);
-		_cameraRight = yRotation * (xRotation * _cameraRight);
+		_cameraFront = rotation * _cameraFront;
+		_cameraUp = rotation * _cameraUp;
+		_cameraRight = rotation * _cameraRight;
 
-		_viewportWidthVector = yRotation * (xRotation * _viewportWidthVector);
-		_viewportHeightVector = yRotation * (xRotation * _viewportHeightVector);
+		_viewportWidthVector = rotation * _viewportWidthVector;
+		_viewportHeightVector = rotation * _viewportHeightVector;
 
 		RecalculateViewport();
 	}
