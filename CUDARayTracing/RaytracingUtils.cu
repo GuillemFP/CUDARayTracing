@@ -1,6 +1,7 @@
 #include "RaytracingUtils.h"
 
 #include "EntityList.h"
+#include "EntityData.h"
 #include "Shape.h"
 #include "Camera.h"
 #include "Screen.h"
@@ -48,6 +49,48 @@ namespace
 		return Vector3(0.0f, 0.0f, 0.0f);
 	}
 
+	__device__ Shape* createShape(const ShapeData& data)
+	{
+		switch (data.type)
+		{
+		case ShapeType::Sphere:
+		{
+			return new Sphere(*data.position, data.radius);
+		}
+		default:
+			break;
+		}
+
+		return nullptr;
+	}
+
+	__device__ Material* createMaterial(const MaterialData& data)
+	{
+		switch (data.type)
+		{
+		case MaterialType::Diffuse:
+			return new Lambertian(*data.color);
+		case MaterialType::Metal:
+			return new Metal(*data.color, data.fuzziness);
+		case MaterialType::Dielectric:
+			return new Dielectric(data.refractiveIndex);
+		}
+
+		return nullptr;
+	}
+
+	__device__ Entity* createEntity(const EntityData& data)
+	{
+		Shape* shape = createShape(*data.shapeData);
+		Material* material = createMaterial(*data.materialData);
+		if (shape && material)
+		{
+			return new Entity(shape, material);
+		}
+
+		return nullptr;
+	}
+
 	__global__ void render_colors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int scatters)
 	{
 		const int i = threadIdx.x + blockIdx.x * blockDim.x;
@@ -75,16 +118,19 @@ namespace
 		curand_init((SEED << 20) + index, 0, 0, &randStates[index]);
 	}
 
-	__global__ void create_entities(EntityList** entities)
+	__global__ void create_entities(EntityList** entities, const EntityData* data, int numEntities)
 	{
 		if (threadIdx.x == 0 && blockIdx.x == 0) 
 		{
-			*(entities) = new EntityList(5);
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, 0.0f, -1.0f), 0.5f), new Lambertian(Vector3(0.8f, 0.3f, 0.3f))));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(0.0f, -100.5f, -1.0f), 100.0f), new Lambertian(Vector3(0.8f, 0.8f, 0.0f))));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(1.0f, 0.0f, -1.0f), 0.5f), new Metal(Vector3(0.8f, 0.6f, 0.2f), 1.0f)));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), 0.5f), new Dielectric(1.5f)));
-			(*entities)->push_back(new Entity(new Sphere(Vector3(-1.0f, 0.0f, -1.0f), -0.45f), new Dielectric(1.5f)));
+			*(entities) = new EntityList(numEntities);
+			for (size_t i = 0; i < numEntities; i++)
+			{
+				Entity* entity = createEntity(data[i]);
+				if (entity)
+				{
+					(*entities)->push_back(entity);
+				}
+			}
 		}
 	}
 
@@ -115,9 +161,9 @@ namespace RaytracingUtils
 		init_render<<<blocks, threads>>>(randStates, pixelsWidth, pixelsHeight);
     }
 
-	__host__ void initEntities(EntityList** entities)
+	__host__ void initEntities(EntityList** entities, const EntityData* data, int numEntities)
 	{
-		create_entities<<<1, 1>>>(entities);
+		create_entities<<<1, 1>>>(entities, data, numEntities);
 	}
 
 	__host__ void cleanUpEntities(EntityList** entities)

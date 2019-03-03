@@ -6,6 +6,7 @@
 
 class Entity;
 class EntityList;
+class EntityData;
 class Camera;
 class Vector3;
 class Screen;
@@ -15,7 +16,7 @@ namespace RaytracingUtils
 	__host__ void getColors(Screen* screen, EntityList** entities, Camera* camera, curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY, int scatters);
 
     __host__ void initRender(curandState* randStates, int pixelsWidth, int pixelsHeight, int threadsX, int threadsY);
-	__host__ void initEntities(EntityList** entities);
+	__host__ void initEntities(EntityList** entities, const EntityData* data, int numEntities);
 	__host__ void cleanUpEntities(EntityList** entities);
 }
 

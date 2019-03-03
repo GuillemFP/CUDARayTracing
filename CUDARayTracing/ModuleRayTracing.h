@@ -3,6 +3,8 @@
 
 #define MODULERAYTRACING_NAME "ModuleRayTracing"
 
+#define ENTITIES_CONFIGFILE "scene.json"
+
 #include "Module.h"
 #include "Color.h"
 #include "Vector3.h"
@@ -11,8 +13,10 @@
 #include <curand_kernel.h>
 
 class Camera;
+class ConfigArray;
 class Timer;
 class EntityList;
+class EntityData;
 class Screen;
 
 class ModuleRayTracing : public Module
@@ -35,6 +39,8 @@ private:
 	void InitFile();
 	void WriteColor(const Color& color);
 
+	void ParseEntities(const ConfigArray& entities);
+
 private:
 	bool _screenFinished = false;
 
@@ -54,6 +60,9 @@ private:
 	float _waitingTime = 0.0f;
 
 	std::ofstream _ppmImage;
+
+	EntityData* _entitiesData = nullptr;
+	int _numEntities = 0;
 
 	EntityList** _entities;
 

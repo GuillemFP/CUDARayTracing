@@ -128,6 +128,9 @@
     <ClInclude Include="Matrix3x3.h">
       <Filter>Cuda</Filter>
     </ClInclude>
+    <ClInclude Include="EntityData.h">
+      <Filter>Cuda</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Log.cpp">

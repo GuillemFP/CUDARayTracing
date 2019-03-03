@@ -6,11 +6,13 @@
 #include "Config.h"
 #include "CudaUtils.h"
 #include "EntityList.h"
+#include "EntityData.h"
 #include "Globals.h"
 #include "Math.h"
 #include "ModuleCamera.h"
 #include "ModuleRender.h"
 #include "ModuleWindow.h"
+#include "ParseUtils.h"
 #include "RaytracingUtils.h"
 #include "Timer.h"
 #include "ParseUtils.h"
@@ -48,10 +50,14 @@ bool ModuleRayTracing::Init(Config* config)
 	_pixelsWidth = App->_window->GetWindowsWidth();
 	_pixelsHeight = App->_window->GetWindowsHeight();
 
+	Config entities = Config(ENTITIES_CONFIGFILE);
+	ConfigArray entitiesArray = entities.GetArray("Entities");
+	ParseEntities(entitiesArray);
+
     const unsigned numberOfPixels = _pixelsWidth * _pixelsHeight;
 
 	checkCudaErrors(cudaMalloc((void **)&_entities, sizeof(EntityList)));
-    RaytracingUtils::initEntities(_entities);
+    RaytracingUtils::initEntities(_entities, _entitiesData, _numEntities);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -78,6 +84,8 @@ bool ModuleRayTracing::Start()
 bool ModuleRayTracing::CleanUp()
 {
 	checkCudaErrors(cudaFree(_screen));
+	RELEASE_ARRAY(_entitiesData);
+	//checkCudaErrors(cudaFree(_entitiesData));
 	
 	RaytracingUtils::cleanUpEntities(_entities);
 	checkCudaErrors(cudaFree(_entities));
@@ -145,4 +153,16 @@ void ModuleRayTracing::WriteColor(const Color& color)
 	int ig = int(255.99*color.g);
 	int ib = int(255.99*color.b);
 	_ppmImage << ir << " " << ig << " " << ib << "\n";
+}
+
+void ModuleRayTracing::ParseEntities(const ConfigArray& entities)
+{
+	_numEntities = entities.GetArrayLength();
+	_entitiesData = new EntityData[_numEntities];
+
+	for (size_t i = 0; i < _numEntities; i++)
+	{
+		const Config entity = entities.GetSection(i);
+		ParseUtils::ParseEntity(_entitiesData[i], entity);
+	}
 }

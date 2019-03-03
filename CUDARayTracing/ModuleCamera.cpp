@@ -113,8 +113,8 @@ update_status ModuleCamera::Update(float dt)
 	{
 		App->_rayTracing->OnCameraMove();
 
-		const float apertureChange = 1.0f * mouseWheel.y * dt;
-		_camera->ChangeFocusDistance(apertureChange);
+		const float distanceChange = 1.0f * mouseWheel.y * dt;
+		_camera->ChangeFocusDistance(distanceChange);
 	}
 
 	return UPDATE_CONTINUE;

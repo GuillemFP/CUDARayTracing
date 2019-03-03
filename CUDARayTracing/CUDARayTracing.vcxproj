@@ -91,6 +91,7 @@
     <ClInclude Include="Cuda.h" />
     <ClInclude Include="CudaUtils.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="EntityData.h" />
     <ClInclude Include="EntityList.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="HitInfo.h" />
